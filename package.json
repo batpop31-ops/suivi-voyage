@@ -3,9 +3,9 @@
   "version": "1.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+  "prebuild": "chmod +x ./node_modules/.bin/vite",
+  "build": "vite build",
+  "dev": "vite"
   },
   "dependencies": {
     "firebase": "^10.11.0",
