@@ -1,11 +1,17 @@
-import { NextConfig } from "next";
 import withPWA from "next-pwa";
+import { NextConfig } from "next";
 
 const nextConfig: NextConfig = withPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
   reactStrictMode: true,
+  experimental: {
+    appDir: true,
+  },
+  pwa: {
+    dest: "public",
+    register: true,
+    skipWaiting: true,
+  },
+  turbo: false, // utilise Webpack pour éviter les conflits avec next-pwa
 });
 
 export default nextConfig;

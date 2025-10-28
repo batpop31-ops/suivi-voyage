@@ -13,21 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Suivi de Voyages",
-  description: "Application pour suivre vos voyages et votre cagnotte",
-  themeColor: "#0284c7",
-  icons: [
-    { rel: "icon", url: "/icon-192.png" },
-    { rel: "apple-touch-icon", url: "/icon-512.png" },
-  ],
-  manifest: "/manifest.json",
+  title: "Voyages des Doudous",
+  description: "Suivi de vos voyages et de votre cagnotte",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en">
+    <html lang="fr">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0284c7" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
