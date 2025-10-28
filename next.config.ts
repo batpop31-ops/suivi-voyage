@@ -11,7 +11,8 @@ const nextConfig: NextConfig = withPWA({
     register: true,
     skipWaiting: true,
   },
-  turbo: false, // utilise Webpack pour éviter les conflits avec next-pwa
+  // Cette ligne désactive Turbopack pour éviter le conflit
+  webpack: (config) => config,
 });
 
 export default nextConfig;
