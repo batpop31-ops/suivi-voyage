@@ -1,23 +1,34 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-export default function TravelBudgetApp() {
-  const [totalSavings, setTotalSavings] = useState(0);
-  const [trips, setTrips] = useState([]);
+interface Trip {
+  name: string;
+  cost: number;
+}
+
+export default function Home() {
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [newTrip, setNewTrip] = useState({ name: "", cost: "" });
+  const [savings, setSavings] = useState<number>(0);
 
+  // Charger les données depuis localStorage au démarrage
   useEffect(() => {
     const savedTrips = localStorage.getItem("trips");
-    const savedSavings = localStorage.getItem("totalSavings");
+    const savedSavings = localStorage.getItem("savings");
     if (savedTrips) setTrips(JSON.parse(savedTrips));
-    if (savedSavings) setTotalSavings(Number(savedSavings));
+    if (savedSavings) setSavings(Number(savedSavings));
   }, []);
 
+  // Sauvegarder les voyages à chaque modification
   useEffect(() => {
     localStorage.setItem("trips", JSON.stringify(trips));
-    localStorage.setItem("totalSavings", totalSavings.toString());
-  }, [trips, totalSavings]);
+  }, [trips]);
+
+  // Sauvegarder la cagnotte à chaque modification
+  useEffect(() => {
+    localStorage.setItem("savings", savings.toString());
+  }, [savings]);
 
   const handleAddTrip = () => {
     if (!newTrip.name || !newTrip.cost) return;
@@ -26,84 +37,89 @@ export default function TravelBudgetApp() {
   };
 
   const handleDeleteTrip = (index: number) => {
-    setTrips(trips.filter((_, i) => i !== index));
+    const updatedTrips = trips.filter((_, i) => i !== index);
+    setTrips(updatedTrips);
   };
 
-  const handleSavingsChange = (value: number) => {
-    setTotalSavings(value);
+  const getProgress = (cost: number) => {
+    if (savings >= cost) return 100;
+    return Math.round((savings / cost) * 100);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">🌍 Suivi de vos voyages</h1>
+    <main className="min-h-screen bg-gradient-to-br from-sky-50 to-sky-200 flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold mb-6 text-sky-800">🌍 Voyages des Doudous</h1>
 
-      <div className="max-w-md mx-auto mb-6">
-        <label className="block mb-2 font-medium">Montant total épargné (€)</label>
+      {/* Section cagnotte */}
+      <div className="bg-white rounded-2xl shadow-md p-4 w-full max-w-md mb-6">
+        <h2 className="text-xl font-semibold mb-2">💰 Cagnotte actuelle</h2>
         <input
           type="number"
-          placeholder="Ex : 6000"
-          value={totalSavings}
-          onChange={(e) => handleSavingsChange(Number(e.target.value))}
-          className="w-full p-2 rounded border"
+          placeholder="Montant mis de côté (€)"
+          value={savings === 0 ? "" : savings}
+          onChange={(e) => setSavings(Number(e.target.value))}
+          className="border rounded-lg p-2 w-full mb-2"
         />
+        <p className="text-sky-700 text-sm">
+          Vous avez <strong>{savings.toLocaleString()} €</strong> de côté.
+        </p>
       </div>
 
-      <div className="max-w-md mx-auto mb-4 p-4 bg-white rounded-2xl shadow">
-        <h2 className="font-semibold mb-3">Ajouter un voyage</h2>
-        <div className="flex gap-2">
-          <input
-            placeholder="Nom du voyage"
-            value={newTrip.name}
-            onChange={(e) => setNewTrip({ ...newTrip, name: e.target.value })}
-            className="flex-1 p-2 rounded border"
-          />
-          <input
-            type="number"
-            placeholder="Coût (€)"
-            value={newTrip.cost}
-            onChange={(e) => setNewTrip({ ...newTrip, cost: e.target.value })}
-            className="w-28 p-2 rounded border"
-          />
-          <button
-            onClick={handleAddTrip}
-            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-          >
-            +
-          </button>
-        </div>
+      {/* Section ajout de voyage */}
+      <div className="bg-white rounded-2xl shadow-md p-4 w-full max-w-md mb-6">
+        <h2 className="text-xl font-semibold mb-2">✈️ Ajouter un voyage</h2>
+        <input
+          type="text"
+          placeholder="Destination"
+          value={newTrip.name}
+          onChange={(e) => setNewTrip({ ...newTrip, name: e.target.value })}
+          className="border rounded-lg p-2 w-full mb-2"
+        />
+        <input
+          type="number"
+          placeholder="Coût (€)"
+          value={newTrip.cost}
+          onChange={(e) => setNewTrip({ ...newTrip, cost: e.target.value })}
+          className="border rounded-lg p-2 w-full mb-2"
+        />
+        <button
+          onClick={handleAddTrip}
+          className="bg-sky-600 text-white rounded-lg px-4 py-2 w-full hover:bg-sky-700"
+        >
+          Ajouter
+        </button>
       </div>
 
-      <div className="grid gap-4 max-w-md mx-auto">
-        {trips.map((trip, index) => {
-          const percentage = Math.min(100, (totalSavings / trip.cost) * 100);
-
-          return (
-            <div key={index} className="bg-white rounded-2xl shadow p-4">
-              <div className="flex justify-between mb-2 items-center">
-                <span className="font-semibold">{trip.name}</span>
-                <span className="text-sm text-gray-600">{trip.cost.toLocaleString()} €</span>
-              </div>
-
-              <div className="h-3 bg-gray-200 rounded">
-                <div
-                  className="h-3 bg-green-500 rounded"
-                  style={{ width: `${percentage}%` }}
-                ></div>
-              </div>
-
-              <div className="flex justify-between mt-2 text-sm font-medium">
-                <span>{percentage.toFixed(0)}%</span>
-                <button
-                  onClick={() => handleDeleteTrip(index)}
-                  className="text-red-500 hover:underline"
-                >
-                  Supprimer
-                </button>
-              </div>
+      {/* Liste des voyages */}
+      <div className="w-full max-w-md space-y-4">
+        {trips.map((trip, index) => (
+          <div key={index} className="bg-white rounded-2xl shadow p-4 flex flex-col">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold text-sky-800">{trip.name}</h3>
+              <button
+                onClick={() => handleDeleteTrip(index)}
+                className="text-red-500 hover:text-red-700 font-bold"
+              >
+                ❌
+              </button>
             </div>
-          );
-        })}
+            <p className="text-sm text-gray-600 mb-2">
+              Objectif : {trip.cost.toLocaleString()} €
+            </p>
+            <div className="w-full bg-gray-200 h-4 rounded-full overflow-hidden">
+              <div
+                className={`h-4 rounded-full ${
+                  getProgress(trip.cost) === 100 ? "bg-green-500" : "bg-sky-500"
+                }`}
+                style={{ width: `${getProgress(trip.cost)}%` }}
+              ></div>
+            </div>
+            <p className="text-right text-sm text-gray-700 mt-1">
+              {getProgress(trip.cost)}%
+            </p>
+          </div>
+        ))}
       </div>
-    </div>
+    </main>
   );
 }
