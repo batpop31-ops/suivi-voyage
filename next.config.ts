@@ -1,7 +1,6 @@
 import withPWA from "next-pwa";
-import { NextConfig } from "next";
 
-const nextConfig: NextConfig = withPWA({
+export default withPWA({
   reactStrictMode: true,
   experimental: {
     appDir: true,
@@ -11,8 +10,5 @@ const nextConfig: NextConfig = withPWA({
     register: true,
     skipWaiting: true,
   },
-  // ⚠ Forcer Webpack au lieu de Turbopack
-  turbopack: {}, // nécessaire pour Next 16 + Vercel
+  turbopack: {},
 });
-
-export default nextConfig;
